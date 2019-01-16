@@ -1,6 +1,10 @@
 
+install:
+	cd app && \
+	composer install
+
 php:
-	php -S 127.0.0.1:8080 -t app/
+	app/bin/console server:run 
 
 .PHONY: php
 
