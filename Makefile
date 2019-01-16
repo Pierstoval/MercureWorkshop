@@ -1,4 +1,9 @@
 
+php:
+	php -S 127.0.0.1:8080 app/index.php
+
+.PHONY: php
+
 mercure:
 	@cd mercure && \
 	ALLOW_ANONYMOUS=1 \
