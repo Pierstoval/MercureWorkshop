@@ -10,12 +10,10 @@
 
 <script>
     const hubUrl = new URL('http://127.0.0.1:3000/hub');
-    hubUrl.searchParams.append('topic', 'http://example.com/foo/bar');
-    hubUrl.searchParams.append('topic', 'http://example.com/foo/bar2');
-    hubUrl.searchParams.append('topic', 'http://example.com/books/{id}');
+    hubUrl.searchParams.append('topic', 'http://127.0.0.1:3000/demo/books/1.jsonld');
 
     const es = new EventSource(hubUrl.toString());
-    es.onmessage = (data) => {};
+    es.onmessage = (event) => console.log(JSON.parse(event.data));
 </script>
 </body>
 </html>
