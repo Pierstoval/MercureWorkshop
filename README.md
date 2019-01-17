@@ -1,9 +1,11 @@
 Workshop given by @dunglas 💗
 
+Install:
+
 ```
-$ make mercure
-# Starts mercure server in front
-$ make php 
-# Starts php server on app/ directory in front
+$ make install
 ```
 
+Open `http://127.0.0.1:8080/` to open the application.
+
+Open `http://127.0.0.1:3000/` to open Mercure debug page.
