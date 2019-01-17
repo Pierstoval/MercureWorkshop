@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <h1>Books</h1>
+
+    <div id="books">
+        {% for book in books %}
+            <article>
+                <h2>{{ book.title }}</h2>
+            </article>
+        {% endfor %}
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        const hubUrl = new URL("{{ mercure_default_hub }}");
+        {% for book in books %}
+        hubUrl.searchParams.append('topic', '{{ url('api_books_get_item', {'id': book.id}) }}');
+        {% endfor %}
+        const es = new EventSource(hubUrl);
+        es.onmessage = (e) => console.info(e);
+    </script>
+{% endblock %}
