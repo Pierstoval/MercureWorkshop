@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
 class Book
 {
     /**
+     * @var int
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
@@ -19,20 +20,28 @@ class Book
     private $id;
 
     /**
+     * @var string
      * @ORM\Column(type="string", length=255)
      */
     private $title;
 
-    private function __construct()
+    public function getId(): int
     {
+        return $this->id;
     }
 
-    public static function create(string $title): self
+    public function setId(int $id): void
     {
-        $book = new self();
+        $this->id = $id;
+    }
 
-        $book->title = $title;
+    public function getTitle(): string
+    {
+        return $this->title;
+    }
 
-        return $book;
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
     }
 }
