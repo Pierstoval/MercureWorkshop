@@ -3,4 +3,4 @@ twig:
     debug: '%kernel.debug%'
     strict_variables: '%kernel.debug%'
     globals:
-        mercure_default_hub: '%env(MERCURE_HUB_URL)%'
+        mercure_hub_public_url: '%env(MERCURE_HUB_PUBLIC_URL)%'

@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BookRepository")
- * @ApiResource
+ * @ApiResource(mercure=true)
  */
 class Book
 {

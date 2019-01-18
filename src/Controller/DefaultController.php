@@ -22,25 +22,24 @@ class DefaultController extends AbstractController
     }
 
     /**
-     * @Route("/pub", name="pub")
+     * @Route("/publish", name="publish")
      */
-    public function pub(Publisher $publisher): Response
+    public function publish(Publisher $publisher): Response
     {
-        $update = new Update('http://127.0.0.1:8080/api/books/1', \json_encode(['msg' => 'Yeah!!!!']));
+        $publisher(new Update('http://127.0.0.1:8080/api/books/1.jsonld', \json_encode(['foo' => 'bar'])));
 
-        $publisher->__invoke($update);
-
+        // Show an HTML page to get the profiler at least
         return new Response(<<<HTML
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-             <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-                         <meta http-equiv="X-UA-Compatible" content="ie=edge">
-             <title>Document</title>
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Document</title>
 </head>
 <body>
-  Done.
+Done.
 </body>
 </html>
 HTML
