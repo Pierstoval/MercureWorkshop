@@ -1,25 +1,129 @@
 {% extends 'base.html.twig' %}
 
+{% block stylesheets %}
+    <style type="text/css">
+        #books {
+            border: solid 1px #000;
+            padding: 20px;
+        }
+        article {
+            padding: 10px;
+            border: solid 1px;
+            margin-bottom: 5px;
+        }
+        article#nobooks {
+            background-color: lavenderblush;
+            border-color: red;
+        }
+        article.book {
+            background-color: #c3edd2;
+            border-color: #1a1;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <h1>Books</h1>
 
+    <p>
+        Here we may have a list of books that will appear in green.
+        A red message can appear if there are no books in the database.
+
+        The events that can occur here:
+    </p>
+
+    <ul>
+        <li>If you create one book from the API, the <code>App\EventSubscriber\BookUpdateListenerSubscriber</code> event listener will automatically publish a message to Mercure, and this page will receive the message.</li>
+        <li>When receiving a message that is related to a Book object, the EventSource will add it dynamically in the DOM.</li>
+        <li>If there were no books, the message in the red box will change.</li>
+    </ul>
+
+    <p>More things you could do with Javascript:</p>
+
+    <ul>
+        <li>When a book is updated, update the associated &lt;article&gt; tag with the new data, changing its color to notify the user that the post was just updated.</li>
+        <li>When a book is deleted, change its color to red to notify the user that the book has been deleted, and add a warning message to prevent the user to access to it, for instance.</li>
+    </ul>
+
     <div id="books">
         {% for book in books %}
-            <article>
+            <article class="book">
                 <h2>{{ book.title }}</h2>
+            </article>
+        {% else %}
+            <article id="nobooks">
+                <p>
+                    No books yet.<br>
+                    Here's a command to create one:
+                </p>
+                <pre>curl -X POST "{{ url('api_books_post_collection') }}" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"title\": \"Ubik, by Philip K. Dick\"}"</pre>
             </article>
         {% endfor %}
     </div>
 {% endblock %}
 
 {% block javascripts %}
-    <script>
+
+    {#
+        A small "hack" to subscribe to /books/{id}.jsonld event source.
+        This allows "listening" to all books updates instead of just one single book.
+    #}
+    {% set topic_url = url('api_books_get_item', {'id': '000', '_format': 'jsonld'}) %}
+    {% set topic_url = topic_url|replace({'000': '{id}'}) %}
+
+    <script type="text/javascript">
+        // Will be used to update the page when receiving messages from Mercure.
+        const booksContainer = document.getElementById('books');
+
+        // Handy way to use native URL class to subscribe to Mercure topicsS.
         const hubUrl = new URL("{{ mercure_hub_public_url }}");
-        {% for book in books -%}
-        hubUrl.searchParams.append('topic', '{{ url('api_books_get_item', {'id': book.id, '_format': 'jsonld'}) }}');
-        {% endfor -%}
-        hubUrl.searchParams.append('topic', 'http://example.com/foo/bar');
-        const es = new EventSource(hubUrl);
-        es.onmessage = (e) => console.info(e);
+
+        // Adds ?topic=... with the above URL.
+        hubUrl.searchParams.append('topic', '{{ topic_url }}');
+
+        // Create the event source to the Mercure hub
+        const eventSource = new EventSource(hubUrl.toString());
+
+        // When a message is published to the hub
+        // AND
+        // the message can be sent to this browser,
+        // we'll get it here in this event.
+        eventSource.onmessage = (event) => {
+            let data = JSON.parse(event.data);
+            let item = data.item;
+
+            if (!item) {
+                console.error('Was expecting an item of some sort from Mercure.');
+                return;
+            }
+
+            let itemType = item['@type'];
+
+            if (!itemType) {
+                console.error('No item[@type], means that it\'s not the right format or it hasn\'t been serialized properly. We expect jsonld here.');
+                return;
+            }
+
+            switch (itemType) {
+                case 'Book':
+                    // Here we're creating RAW nodes,
+                    // but in real life, it'd probably be a React component,
+                    // or some other actions depending on your frontend framework.
+
+                    let nobooksNotice = document.getElementById('nobooks');
+                    if (nobooksNotice) {
+                        nobooksNotice.innerHTML = 'Hey, since now you have at least one book, this node was also updated to tell you that it could have been actually removed from the DOM!';
+                    }
+
+                    let node = document.createElement('article');
+                    node.className = 'book';
+                    node.innerHTML = '<h2>'+item.title+' <small>(Hey, I was published by Mercure! I\'m brand new!)</small></h2>';
+                    booksContainer.appendChild(node);
+                    break;
+                default:
+                    console.warn('Unhandled item type "'+itemType+'" from Mercure.');
+                    break;
+            }
+        };
     </script>
 {% endblock %}
