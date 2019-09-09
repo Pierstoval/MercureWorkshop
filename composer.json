@@ -13,7 +13,7 @@
         "symfony/framework-bundle": "4.2.*",
         "symfony/mercure-bundle": "^0.1.0",
         "symfony/orm-pack": "^1.0",
-        "symfony/yaml": "4.2.*"
+        "symfony/yaml": "4.3.*"
     },
     "config": {
         "preferred-install": {
